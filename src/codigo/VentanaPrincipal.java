@@ -16,6 +16,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  */
 public class VentanaPrincipal extends javax.swing.JFrame {
 
+    public static File fichero = null;
     /**
      * Creates new form VentanaPrincipal
      */
@@ -35,7 +36,8 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         txtHojaEscritura = new java.awt.TextArea();
         btnAbrir = new javax.swing.JButton();
         btnGuardar = new javax.swing.JButton();
-        btnPrueba = new javax.swing.JButton();
+        btnGuardarComo = new javax.swing.JButton();
+        btnNuevo = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -53,10 +55,17 @@ public class VentanaPrincipal extends javax.swing.JFrame {
             }
         });
 
-        btnPrueba.setText("prueba");
-        btnPrueba.addActionListener(new java.awt.event.ActionListener() {
+        btnGuardarComo.setText("Guardar como");
+        btnGuardarComo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnPruebaActionPerformed(evt);
+                btnGuardarComoActionPerformed(evt);
+            }
+        });
+
+        btnNuevo.setText("Nuevo");
+        btnNuevo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnNuevoActionPerformed(evt);
             }
         });
 
@@ -67,13 +76,15 @@ public class VentanaPrincipal extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(txtHojaEscritura, javax.swing.GroupLayout.DEFAULT_SIZE, 948, Short.MAX_VALUE)
+                    .addComponent(txtHojaEscritura, javax.swing.GroupLayout.DEFAULT_SIZE, 728, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(btnAbrir)
                         .addGap(18, 18, 18)
                         .addComponent(btnGuardar)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btnPrueba)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnGuardarComo)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnNuevo)
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -83,10 +94,11 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnAbrir)
+                    .addComponent(btnGuardarComo)
                     .addComponent(btnGuardar)
-                    .addComponent(btnPrueba))
+                    .addComponent(btnNuevo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(txtHojaEscritura, javax.swing.GroupLayout.DEFAULT_SIZE, 537, Short.MAX_VALUE)
+                .addComponent(txtHojaEscritura, javax.swing.GroupLayout.DEFAULT_SIZE, 477, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -100,14 +112,29 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     }//GEN-LAST:event_btnAbrirActionPerformed
 
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
-
-        dialogoGuardarFichero();
-
+        if (fichero != null) {
+            guardarNuevoFichero(fichero.getAbsolutePath());
+        }
     }//GEN-LAST:event_btnGuardarActionPerformed
 
-    private void btnPruebaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPruebaActionPerformed
+    private void btnGuardarComoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarComoActionPerformed
+        dialogoGuardarFichero();
+    }//GEN-LAST:event_btnGuardarComoActionPerformed
 
-    }//GEN-LAST:event_btnPruebaActionPerformed
+    private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
+
+        Frame frame = new Frame();
+
+        String mensaje = "¿Desea descartar los cambios?";
+
+        Object[] opcionesGuardado = {mensaje};
+        int save = JOptionPane.showConfirmDialog(frame, opcionesGuardado, "Abrir", JOptionPane.YES_NO_OPTION);
+
+        if (save == 0) {
+            fichero = null;
+            txtHojaEscritura.setText(" ");
+        }
+    }//GEN-LAST:event_btnNuevoActionPerformed
 
     /**
      * @param args the command line arguments
@@ -147,14 +174,16 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAbrir;
     private javax.swing.JButton btnGuardar;
-    private javax.swing.JButton btnPrueba;
+    private javax.swing.JButton btnGuardarComo;
+    private javax.swing.JButton btnNuevo;
     private java.awt.TextArea txtHojaEscritura;
     // End of variables declaration//GEN-END:variables
 
     //Métodos de lectura
     private String dialogoSeleccionarFichero() {
-        String rutaAbsoluta = "";
 
+        String rutaAbsoluta = "";
+        
         try {
             JFileChooser fco = new JFileChooser();
 
@@ -168,12 +197,22 @@ public class VentanaPrincipal extends javax.swing.JFrame {
             //Si no se produce ningún error seleccion será 0
             int seleccion = fco.showOpenDialog(this);
             if (seleccion == JFileChooser.APPROVE_OPTION) {
-                File fichero = fco.getSelectedFile();
+                fichero = fco.getSelectedFile();
                 String nombre = fichero.getName();
                 String extension = nombre.substring(nombre.lastIndexOf('.') + 1, nombre.length());
-
-                if (extension.equalsIgnoreCase("txt") || extension.equalsIgnoreCase("xml")) {
+                
+                
+                if (!(extension.equalsIgnoreCase("txt") || extension.equalsIgnoreCase("xml"))) {
+                    Frame frame = new Frame();
+                    String mensaje = "";
+                    
+                    Object[] textoAlerta = {mensaje};
+                    
+                    JOptionPane.showConfirmDialog(null, "Estensión seleccionada no válida.", "", JOptionPane.OK_OPTION, JOptionPane.PLAIN_MESSAGE);
+                    
+                } else {
                     rutaAbsoluta = fichero.getAbsolutePath();
+                    leerBufferReader(rutaAbsoluta);
                 }
             }
         } catch (Exception ex) {
@@ -209,7 +248,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         int seleccion = fcs.showSaveDialog(this);
         if (seleccion == JFileChooser.APPROVE_OPTION) {
             //si entra aquí es porque el usuario ha pulsado en "guardar"
-            File fichero = fcs.getSelectedFile();
+            fichero = fcs.getSelectedFile();
             String nombre = fichero.getName();
             String extension = nombre.substring(nombre.lastIndexOf('.') + 1, nombre.length());
 
@@ -243,29 +282,19 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private void guardarFicheroExistente(String nombre, String rutaAbsoluta) {
         Frame frame = new Frame();
 
-        JCheckBox checkbox = new JCheckBox("Añadir contenido al final del fichero.");
+        JCheckBox checkbox = new JCheckBox("Añadir al final del fichero.");
         String mensaje = nombre + " ya existe. \n ¿desea reemplazarlo?";
 
         Object[] opcionesGuardado = {mensaje, checkbox};
-        int save = JOptionPane.showConfirmDialog(frame, opcionesGuardado, "Disconnect Products", JOptionPane.YES_NO_OPTION);
+        int save = JOptionPane.showConfirmDialog(frame, opcionesGuardado, "Guardar como", JOptionPane.YES_NO_OPTION);
         boolean addChoice = checkbox.isSelected();
 
         if (save == 0) {
             if (addChoice == false) {
-                try {
 
-                    BufferedWriter bw = new BufferedWriter(new FileWriter(rutaAbsoluta));
+                guardarNuevoFichero(rutaAbsoluta);
 
-                    for (String linea : txtHojaEscritura.getText().split("\\n")) {
-                        bw.write(linea);
-                    }
 
-                    bw.close();
-
-                } catch (IOException ex) {
-                    System.out.println("Error en la escritura del fichero.");
-                }
-                
             } else {
                 try {
 
